@@ -24,7 +24,7 @@ hs_err_pid*
 replay_pid*
 
 hsqldb/.DS_Store
-hsqldb/tmp/*
-hsqldb/out/*
-hsqldb/.idea/*
+hsqldb/tmp/
+hsqldb/out/
+hsqldb/.idea/
 .DS_Store
