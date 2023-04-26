@@ -127,11 +127,6 @@ public abstract class ScriptWriterBase implements Runnable {
         Tokens.T_TEXT, Tokens.T_BINARY, null, Tokens.T_COMPRESSED
     };
 
-    ScriptWriterBase(Database db) {
-        initBuffers();
-        this.database = db;
-    }
-
     ScriptWriterBase(Database db, OutputStream outputStream,
                      FileAccess.FileSync descriptor,
                      boolean includeCachedData) {
