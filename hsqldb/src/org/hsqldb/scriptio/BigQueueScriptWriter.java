@@ -34,7 +34,7 @@ public class BigQueueScriptWriter extends ScriptWriterText {
                 byteCount += rowOut.size();
                 lineCount++;
             } catch (IOException e) {
-                throw Error.error(e, ErrorCode.FILE_IO_ERROR, "Failed to enqueue to bigquee");
+                throw Error.error(e, ErrorCode.FILE_IO_ERROR, "Failed to enqueue to BigQueue");
             }
         }
     }
