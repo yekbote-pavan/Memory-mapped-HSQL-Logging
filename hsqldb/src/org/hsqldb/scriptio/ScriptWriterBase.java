@@ -149,19 +149,7 @@ public abstract class ScriptWriterBase implements Runnable {
                      boolean isNewFile, boolean isUserScript) {
 
         initBuffers();
-
-        boolean exists = false;
-
-        if (isUserScript) {
-            exists = FileUtil.getFileUtil().exists(file);
-        } else {
-            exists = db.logger.getFileAccess().isStreamElement(file);
-        }
-
-        if (exists && isNewFile) {
-            throw Error.error(ErrorCode.FILE_IO_ERROR,
-                              file + " already exists");
-        }
+        checkExists(db, file, isNewFile);
 
         this.database          = db;
         this.isUserScript      = isUserScript;
@@ -175,6 +163,21 @@ public abstract class ScriptWriterBase implements Runnable {
             currentSession.currentSchema;
 
         openFile();
+    }
+
+    public void checkExists(Database db, String file, boolean isNewFile) {
+        boolean exists = false;
+
+        if (isUserScript) {
+            exists = FileUtil.getFileUtil().exists(file);
+        } else {
+            exists = db.logger.getFileAccess().isStreamElement(file);
+        }
+
+        if (exists && isNewFile) {
+            throw Error.error(ErrorCode.FILE_IO_ERROR,
+                    file + " already exists");
+        }
     }
 
     public void setIncludeIndexRoots(boolean include) {

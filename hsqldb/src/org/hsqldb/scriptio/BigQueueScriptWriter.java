@@ -1,83 +1,88 @@
 package org.hsqldb.scriptio;
 
+import com.leansoft.bigqueue.BigQueueImpl;
+import com.leansoft.bigqueue.IBigQueue;
 import org.hsqldb.*;
-import org.hsqldb.lib.FileAccess;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 
-import java.io.OutputStream;
+import java.io.IOException;
 
-public class BigQueueScriptWriter extends ScriptWriterBase {
+public class BigQueueScriptWriter extends ScriptWriterText {
 
-    public BigQueueScriptWriter(Database db) {
-        super(db);
+    private IBigQueue bigQueue;
+    public BigQueueScriptWriter(Database db, String file,
+                            boolean includeCachedData, boolean newFile,
+                            boolean isUserScript) {
+        super(db, file, includeCachedData, newFile, isUserScript);
     }
 
     @Override
-    protected void initBuffers() {
-// init bigque
+    public void openFile() {
+        try {
+            this.bigQueue = new BigQueueImpl(".", outFile);
+        } catch (IOException e) {
+            throw Error.error(e, ErrorCode.FILE_IO_ERROR, "Failed to open BigQueue");
+        }
     }
 
     @Override
-    public void writeRow(Session session, Row row, Table table) {
-
-    }
-
-    @Override
-    protected void writeDataTerm() {}
-
-    @Override
-    protected void writeSessionIdAndSchema(Session session) {
-        // increament bytecount
-    }
-
-    @Override
-    public void writeLogStatement(Session session, String s) {
-// increament bytecount
-    }
-
-    @Override
-    public void writeOtherStatement(Session session, String s) {
-// increament bytecount
-    }
-
-    @Override
-    public void writeInsertStatement(Session session, Row row, Table table) {
-// increament bytecount
-    }
-
-    @Override
-    public void writeDeleteStatement(Session session, Table table, Object[] data) {
-// increament bytecount
-    }
-
-    @Override
-    public void writeSequenceStatement(Session session, NumberSequence seq) {
-// increament bytecount
-    }
-
-    @Override
-    public void writeCommitStatement(Session session) {
-// increament bytecount
+    void writeRowOutToFile() {
+        synchronized (this.bigQueue) {
+            try {
+                this.bigQueue.enqueue(rowOut.getBuffer());
+                byteCount += rowOut.size();
+                lineCount++;
+            } catch (IOException e) {
+                throw Error.error(e, ErrorCode.FILE_IO_ERROR, "Failed to enqueue to bigquee");
+            }
+        }
     }
 
     @Override
     public void close() {
-// set bytecount to 0
+        if (isClosed) {
+            return;
+        }
+
+        try {
+            this.bigQueue.close();
+            isClosed = true;
+        } catch (IOException e) {
+            throw Error.error(e, ErrorCode.FILE_IO_ERROR, "Failed to close BigQueue");
+        }
+
+        byteCount = 0;
+        lineCount = 0;
     }
 
-    // overriding because there is no force flushing in bigqueue
+    @Override
+    public void sync() {
+        // do nothing
+    }
+
     @Override
     public void forceSync() {
         // do nothing
     }
 
-    // might not need to override
-//    @Override
-//    public void start() {
-//        // do nothing
-//    }
-//
-//    @Override
-//    public void stop() {
-//        // do nothing
-//    }
+    @Override
+    public void checkExists(Database db, String file, boolean isNewFile) {
+        // do nothing
+    }
+
+    @Override
+    public void start() {
+        // do nothing
+    }
+
+    @Override
+    public void stop() {
+        // do nothing
+    }
+
+    @Override
+    protected  void finishStream() {
+        // do nothing
+    }
 }

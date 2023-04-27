@@ -601,8 +601,9 @@ public class Log {
 
         try {
             if (crypto == null) {
-                dbLogWriter = new ScriptWriterText(database, logFileName,
-                                                   false, false, false);
+//                dbLogWriter = new ScriptWriterText(database, logFileName,
+//                                                   false, false, false);
+                dbLogWriter = new BigQueueScriptWriter(database, logFileName, false, false ,false);
             } else {
                 dbLogWriter = new ScriptWriterEncode(database, logFileName,
                                                      crypto);
